@@ -1,4 +1,8 @@
 import os
+from datetime import datetime
+from functools import wraps
+from typing import Any, Callable
+
 from dotenv import load_dotenv
 import serpapi
 
@@ -21,6 +25,20 @@ tool_schema = {
         }
     }
 }
+
+
+def _log_tool_call(tool_name: str) -> None:
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] Prehook: calling tool '{tool_name}'")
+
+
+def with_prehook(tool_name: str, target_func: Callable[..., dict]) -> Callable[..., dict]:
+    @wraps(target_func)
+    def wrapper(*args: Any, **kwargs: Any) -> dict:
+        _log_tool_call(tool_name)
+        return target_func(*args, **kwargs)
+
+    return wrapper
 
 
 def web_search(query: str, serp_key: str | None = None) -> dict:
@@ -58,3 +76,6 @@ def web_search(query: str, serp_key: str | None = None) -> dict:
 
     except Exception as e:
         return {"error": str(e)}
+
+
+web_search.with_prehook = with_prehook

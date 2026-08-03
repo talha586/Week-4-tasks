@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from google import genai
 from Skill.web_search import tool_schema, web_search
 
+logged_web_search = web_search.with_prehook("web_search", web_search)
+
 load_dotenv("Config/.env")
 
 gemini_key = os.getenv("GEMINI_API_KEY")
@@ -105,7 +107,7 @@ def main() -> None:
         conversation_history = conversation_history[-8:]
 
         print("Agent: Searching the web...")
-        search_results = web_search(user_query, serp_key)
+        search_results = logged_web_search(user_query, serp_key)
 
         if "error" in search_results:
             print(f"Agent: I could not retrieve web results. Error: {search_results['error']}")
