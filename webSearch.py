@@ -2,6 +2,7 @@ import os
 import re
 from dotenv import load_dotenv
 from google import genai
+from Skill.file_io import file_io_schema, read_file
 from Skill.web_search import tool_schema, web_search
 
 logged_web_search = web_search.with_prehook("web_search", web_search)
@@ -17,7 +18,7 @@ if not serp_key:
     raise RuntimeError("SERP_API_KEY not found. Check Config/.env")
 
 client = genai.Client(api_key=gemini_key)
-registered_tools = [tool_schema]
+registered_tools = [tool_schema, file_io_schema]
 
 
 def extract_session_facts(text: str) -> list[str]:
